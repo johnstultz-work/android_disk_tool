@@ -95,6 +95,10 @@ def main(argv):
 	initrd = ""
 	system = ""
 
+	if (len(argv) == 0):
+		print HELP_TXT
+		sys.exit(2)
+
 	try:
 		opts, args = getopt.getopt(argv,"hk:r:s:")
 	except getopt.GetoptError:
