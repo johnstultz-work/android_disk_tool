@@ -2,6 +2,7 @@
 
 import sys, getopt
 import os
+import subprocess
 
 disk_name = "disk.raw"
 MBR_SIZE = 1024*1024
@@ -121,8 +122,13 @@ def main(argv):
 	generate_ext4("cache", "2G")
 	generate_ext4("data", "4G")
 
-	cmd = "simg2img "+system+" system.img.raw"
-	os.system(cmd)
+	out = subprocess.check_output(["file", system])
+	if ("sparse" in out):
+		cmd = "simg2img "+system+" system.img.raw"
+		os.system(cmd)
+	else:
+		cmd = "cp " + system + " system.img.raw"
+		os.system(cmd)
 
 
 	#Create disk, partition and add bootloader
