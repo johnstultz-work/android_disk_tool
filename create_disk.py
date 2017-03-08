@@ -90,7 +90,7 @@ def generate_ext4(label, size):
 	os.system(cmd)
 
 
-HELP_TXT="create_disk.py -k <kernel> -r <ramdisk> -s <system img>"
+HELP_TXT="create_disk.py -k <kernel> -r <ramdisk> [-s <system img>]"
 def main(argv):
 	kernel=""
 	initrd = ""
@@ -117,29 +117,37 @@ def main(argv):
 		elif opt in ("-s"):
 			system = arg
 
+	if ((kernel == "") or (ramdisk == "")):
+		print HELP_TXT
+		sys.exit()
+
 	# generate partition files
 	generate_boot("dos.img", kernel, ramdisk, "syslinux.cfg")
 	generate_ext4("cache", "2G")
 	generate_ext4("data", "4G")
 
-	out = subprocess.check_output(["file", system])
-	if ("sparse" in out):
-		cmd = "simg2img "+system+" system.img.raw"
-		os.system(cmd)
-	else:
-		cmd = "cp " + system + " system.img.raw"
-		os.system(cmd)
+	files = [("dos.img", "fat32"), ("cache.img","ext4"), ("data.img", "ext4")]
+	if (system != ""):
+		out = subprocess.check_output(["file", system])
+		if ("sparse" in out):
+			cmd = "simg2img "+system+" system.img.raw"
+			os.system(cmd)
+		else:
+			cmd = "cp " + system + " system.img.raw"
+			os.system(cmd)
 
+		files.append(("system.img.raw","ext4"));
 
 	#Create disk, partition and add bootloader
-	files = [("dos.img", "fat32"), ("system.img.raw","ext4"), ("cache.img","ext4"), ("data.img", "ext4")]
 	partitions = calculate_partitions(files)
 	create_disk(partitions)
 	partition_disk(partitions)
 	add_bootloader()
 
 	# cleanup
-	cmd = "rm dos.img cache.img data.img system.img.raw"
+	cmd = "rm dos.img cache.img data.img"
+	if (system != ""):
+		cmd = cmd + " system.img.raw"
 	os.system(cmd)
 
 
