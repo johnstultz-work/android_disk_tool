@@ -72,10 +72,10 @@ def generate_boot(fname, kernel, ramdisk, syslinux):
 	cmd = "mkfs.fat "+fname
 	os.system(cmd)
 
-	cmd = "mcopy -i "+fname+" "+kernel+" ::/"
+	cmd = "mcopy -i "+fname+" "+kernel+" ::/kernel"
 	os.system(cmd)
 
-	cmd = "mcopy -i "+fname+" "+ramdisk+" ::/"
+	cmd = "mcopy -i "+fname+" "+ramdisk+" ::/ramdisk.img"
 	os.system(cmd)
 
 	cmd = "mcopy -i "+fname+" "+syslinux+" ::/"
