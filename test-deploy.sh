@@ -5,8 +5,8 @@ do
 key="$1"
 
 case $key in
-	-p|--project)
-	PROJECT="$2"
+	-b|--bucket)
+	BUCKET="$2"
 	shift # past argument
 	;;
 	*)
@@ -16,14 +16,14 @@ esac
 shift # past argument or value
 done
 
-if [[ -z "${PROJECT}" ]]; then
-	echo "No project specified, please use -p <projectname>"
-	echo "Likely project names:"
+if [[ -z "${BUCKET}" ]]; then
+	echo "No project specified, please use -b <bucketname>"
+	echo "Likely bucket names:"
 	gsutil ls | sed -e 's/gs:\/\///' | sed -e 's/\///'
 	exit
 fi
 
-echo PROJECT = "${PROJECT}"
+echo BUCKET = "${BUCKET}"
 
 
 NOW=$(date +%d-%m-%Y-%s)
@@ -33,9 +33,9 @@ IMGNAME=android-img-$NOW
 
 tar -Sczf $DISKIMG disk.raw
 
-gsutil cp $DISKIMG  gs://$PROJECT/
+gsutil cp $DISKIMG  gs://$BUCKET/
 gcloud compute images create "$IMGNAME" \
-	--source-uri "https://storage.googleapis.com/$PROJECT/$DISKIMG"
+	--source-uri "https://storage.googleapis.com/$BUCKET/$DISKIMG"
 gcloud compute instances create "android-$NOW" --machine-type "custom-1-1024" --image "$IMGNAME"
 
 
